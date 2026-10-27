@@ -122,7 +122,7 @@ st.markdown(
 
 with st.sidebar:
     st.markdown("### Connection")
-    api_base = st.text_input("API base URL", value=" https://nodetopic.onrender.com").rstrip("/")
+    api_base = st.text_input("API base URL", value="https://nodetopic.onrender.com").strip().rstrip("/")
 
     if st.button("Check health", use_container_width=True):
         st.session_state["_check_health"] = True
@@ -175,7 +175,7 @@ st.write("")
 # Result rendering helpers
 # ----------------------------------------------------------------------------
 def get_probs(pred: dict) -> list[float]:
-    probs = pred.get("probabilities", pred.get("probs"))
+    probs = pred.get("probabilities", pred.get("probabilites", pred.get("probs")))
     if probs is None:
         raise KeyError(f"No probabilities in response. Keys: {list(pred.keys())}")
     if isinstance(probs, dict):
@@ -221,7 +221,7 @@ def render_predictions(data: dict):
             df = pd.DataFrame(
                 {
                     "topic": [c.replace("_", " ") for c in CORA_CLASSES.values()],
-                    "probability": pred["probabilities"],
+                    "probability": probs,
                     "class_id": list(CORA_CLASSES.keys()),
                 }
             ).sort_values("probability", ascending=True)
