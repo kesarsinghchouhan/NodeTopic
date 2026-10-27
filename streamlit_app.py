@@ -18,7 +18,7 @@ import pandas as pd
 # ----------------------------------------------------------------------------
 
 st.set_page_config(
-    page_title="Cora GCN Explorer",
+    page_title="NodeTopic",
     page_icon="◆",
     layout="wide",
     initial_sidebar_state="expanded",
