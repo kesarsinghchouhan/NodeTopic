@@ -164,7 +164,7 @@ with st.sidebar:
 # ----------------------------------------------------------------------------
 
 st.markdown('<div class="eyebrow">◆ graph neural network · node classification</div>', unsafe_allow_html=True)
-st.title("Cora GCN Explorer")
+st.title("NodeTopic")
 st.caption(
     "Classify citation-network papers into one of seven research topics using a trained "
     "graph convolutional network, served over ONNX Runtime."
