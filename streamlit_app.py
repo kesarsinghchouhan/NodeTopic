@@ -174,7 +174,22 @@ st.write("")
 # ----------------------------------------------------------------------------
 # Result rendering helpers
 # ----------------------------------------------------------------------------
-
+def get_probs(pred: dict) -> list[float]:
+    probs = pred.get("probabilities", pred.get("probs"))
+    if probs is None:
+        raise KeyError(f"No probabilities in response. Keys: {list(pred.keys())}")
+    if isinstance(probs, dict):
+        out = []
+        for cid, name in CORA_CLASSES.items():
+            if str(cid) in probs:
+                out.append(probs[str(cid)])
+            elif cid in probs:
+                out.append(probs[cid])
+            else:
+                out.append(probs[name])
+        return out
+    return list(probs)
+    
 def render_predictions(data: dict):
     col1, col2 = st.columns(2)
     col1.metric("Nodes in graph", data.get("num_nodes", "–"))
@@ -183,9 +198,10 @@ def render_predictions(data: dict):
 
     for pred in data.get("predictions", []):
         class_id = pred["predicted_class_id"]
+        probs = get_probs(pred)
         color = CLASS_COLORS[class_id]
         name = pred["predicted_class_name"].replace("_", " ")
-        conf = pred["probabilities"][class_id] * 100
+        conf = probs[class_id] * 100
 
         with st.container():
             st.markdown(
