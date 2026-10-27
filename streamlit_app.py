@@ -122,7 +122,7 @@ st.markdown(
 
 with st.sidebar:
     st.markdown("### Connection")
-    api_base = st.text_input("API base URL", value="https://nodetopic.onrender.com").strip().rstrip("/")
+    api_base = st.text_input("API base URL", value="https://nodetopic.onrender.com").rstrip("/")
 
     if st.button("Check health", use_container_width=True):
         st.session_state["_check_health"] = True
@@ -174,22 +174,6 @@ st.write("")
 # ----------------------------------------------------------------------------
 # Result rendering helpers
 # ----------------------------------------------------------------------------
-def get_probs(pred: dict) -> list[float]:
-    probs = pred.get("probabilities", pred.get("probabilites", pred.get("probs")))
-    if probs is None:
-        raise KeyError(f"No probabilities in response. Keys: {list(pred.keys())}")
-    if isinstance(probs, dict):
-        out = []
-        for cid, name in CORA_CLASSES.items():
-            if str(cid) in probs:
-                out.append(probs[str(cid)])
-            elif cid in probs:
-                out.append(probs[cid])
-            else:
-                out.append(probs[name])
-        return out
-    return list(probs)
-    
 def render_predictions(data: dict):
     col1, col2 = st.columns(2)
     col1.metric("Nodes in graph", data.get("num_nodes", "–"))
@@ -198,10 +182,9 @@ def render_predictions(data: dict):
 
     for pred in data.get("predictions", []):
         class_id = pred["predicted_class_id"]
-        probs = get_probs(pred)
         color = CLASS_COLORS[class_id]
         name = pred["predicted_class_name"].replace("_", " ")
-        conf = probs[class_id] * 100
+        conf = pred["probabilities"][class_id] * 100
 
         with st.container():
             st.markdown(
@@ -221,7 +204,7 @@ def render_predictions(data: dict):
             df = pd.DataFrame(
                 {
                     "topic": [c.replace("_", " ") for c in CORA_CLASSES.values()],
-                    "probability": probs,
+                    "probability": pred["probabilities"],
                     "class_id": list(CORA_CLASSES.keys()),
                 }
             ).sort_values("probability", ascending=True)
